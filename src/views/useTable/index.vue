@@ -4,14 +4,7 @@
 			<SearchForm ref="searchFormRef" :columns="searchColumns" @search="onSearch" />
 			<a-divider />
 			<Toolbar ref="toolbarRef" :columns="toolbars" />
-			<CustomTable
-				ref="customTable"
-				:setting="tableSettings"
-				:column="tableColumns"
-				:data="onLoad"
-				@page-change="pageChange"
-				@page-size-change="pageSizeChange"
-			/>
+			<CustomTable ref="customTable" :setting="tableSettings" :column="tableColumns" :data="loadData" @selection-change="selectionChange" />
 		</a-card>
 	</div>
 </template>
@@ -52,20 +45,205 @@ function onShow() {
 const customTable = ref()
 const tableSettings = reactive(tableSetting)
 let tableColumns = reactive(tableColumn)
+// 模拟mock数据
+const mockData = [
+	{
+		id: '1',
+		name: 'Jane Doe',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		address: '32 Park Road, London',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '2',
+		name: 'Alisa Ross',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		address: '32 Park Road, London',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '3',
+		name: 'Kevin Sandra',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		address: '32 Park Road, London',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '4',
+		name: 'Ed Hellen',
+		salary: 17000,
+		address: '42 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '5',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '女',
+		_sex_: '2',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '6',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '女',
+		_sex_: '2',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '7',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '8',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '女',
+		_sex_: '2',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '9',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '10',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '11',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '12',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '13',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '15',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '14',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	}
+]
 // 数据加载
-function onLoad({ current, pageSize }) {
+function loadData({ current, pageSize }) {
 	return new Promise((resolve) => {
 		setTimeout(() => {
+			const data = mockData.slice((current - 1) * pageSize, current * pageSize)
 			resolve({
-				total: 11,
-				data: []
+				total: 15,
+				data
 			})
-		})
+		}, 500)
 	})
 }
 // 刷新数据
 function refresh() {
 	customTable.value.refresh()
+}
+// 选中数据行
+function selectionChange({ rowKeys, selectRecords }) {
+	console.log(rowKeys, selectRecords)
 }
 
 onBeforeMount(() => {
@@ -91,7 +269,7 @@ onBeforeMount(() => {
 					},
 					template: item.renderStr
 				}
-				app.component('MyComponent', MyComponent)
+				app.component(`MyComponent${Date.now()}`, MyComponent)
 				return <MyComponent></MyComponent>
 			}
 		}

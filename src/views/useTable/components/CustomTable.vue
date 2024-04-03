@@ -4,8 +4,9 @@
 			v-bind="{ ...tableSetting }"
 			:pagination="pagination"
 			:columns="columns"
-			:data="data"
+			:data="tableData"
 			:scroll="scroll"
+			:loading="loading"
 			@selection-change="selectionChange"
 			@page-change="pageChange"
 			@page-size-change="pageSizeChange"
@@ -18,8 +19,9 @@
 </template>
 
 <script setup lang="jsx">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, onBeforeMount } from 'vue'
 import cloneDeep from 'lodash/cloneDeep'
+import { getUniqueArray } from '@/utils/util'
 
 // 设置表格高度
 const scroll = ref({
@@ -36,6 +38,9 @@ const props = defineProps({
 	column: {
 		type: Array,
 		default: () => []
+	},
+	data: {
+		type: Function
 	}
 })
 let tableSetting = reactive({})
@@ -79,199 +84,65 @@ watch(
 	}
 )
 
-// emit传递数据给父组件
-const emits = defineEmits(['pageChange', 'pageSizeChange'])
+const emits = defineEmits(['selectionChange'])
+// 选中数据
 function selectionChange(rowKeys) {
-	console.log('rowKeys: ', rowKeys)
+	const selectRecords = tableAllData.filter((item, index) => {
+		return rowKeys.some((key) => key === item[tableSetting.rowKey])
+	})
+	emits('selectionChange', { rowKeys, selectRecords })
 }
 function pageChange(page) {
 	pagination.current = page
-	emits('pageChange', page)
+	loadData()
 }
 function pageSizeChange(pageSize) {
+	pagination.current = 1
 	pagination.pageSize = pageSize
-	emits('pageSizeChange', pageSize)
+	loadData()
 }
 
-const data = reactive([
-	{
-		id: '1',
-		name: 'Jane Doe',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		address: '32 Park Road, London',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '2',
-		name: 'Alisa Ross',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		address: '32 Park Road, London',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '3',
-		name: 'Kevin Sandra',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		address: '32 Park Road, London',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '4',
-		name: 'Ed Hellen',
-		salary: 17000,
-		address: '42 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '5',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '女',
-		_sex_: '2',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '6',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '女',
-		_sex_: '2',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '7',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '8',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '女',
-		_sex_: '2',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '9',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '10',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '11',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '12',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '13',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '15',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
-	},
-	{
-		id: '14',
-		name: 'William Smith',
-		salary: 27000,
-		address: '62 Park Road, London',
-		age: 18,
-		sex: '男',
-		_sex_: '1',
-		date: '2024-04-02 12:00:00',
-		tree: 'Trunk 0-0',
-		_tree_: 'Trunk 0-0'
+/**
+ * 表格重新加载方法
+ * 如果参数为 true, 则强制刷新到第一页
+ * @param Boolean bool
+ */
+function refresh(bool = true) {
+	if (bool) {
+		this.loadData({ current: 1, pageSize: pagination.pageSize })
+	} else {
+		this.loadData()
 	}
-])
+}
+/**
+ * 加载数据方法
+ * @param {Object} pagination 分页选项器
+ */
+let tableData = reactive([])
+let tableAllData = []
+const loading = ref(false)
+function loadData() {
+	loading.value = true
+	const result = props.data(pagination)
+	if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
+		result.then((res) => {
+			pagination.total = res.total
+			tableData = res.data || []
+			tableAllData = [...tableAllData, ...tableData]
+			tableAllData = getUniqueArray(tableAllData, tableSetting.rowKey)
+			loading.value = false
+		})
+	}
+}
+
+onBeforeMount(() => {
+	loadData()
+})
+
+// 暴露api
+defineExpose({
+	refresh
+})
 </script>
 
 <script lang="jsx">

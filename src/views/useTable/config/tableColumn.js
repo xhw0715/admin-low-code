@@ -16,7 +16,7 @@ export default [
 		width: 60,
 		type: 'number',
 		align: 'center',
-		renderStr: `<a-tag checkable color="arcoblue" default-checked="true">{{record.age}}</a-tag>`
+		renderStr: `<a-tag checkable color="arcoblue" :default-checked="true">{{record.age}}</a-tag>`
 	},
 	{
 		title: '性别',
