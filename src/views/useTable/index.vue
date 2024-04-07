@@ -19,6 +19,7 @@ import toolbar from './config/toolbar'
 import CustomTable from './components/CustomTable.vue'
 import tableSetting from './config/tableSetting'
 import tableColumn from './config/tableColumn'
+import lineMenu from './config/lineMenu'
 
 // 状态共享
 const tableSotre = useTableDataStore()
@@ -275,6 +276,89 @@ onBeforeMount(() => {
 		}
 		return item
 	})
+	const actionColumn = {
+		label: '操作',
+		prop: 'action'
+	}
+	actionColumn.render = (params) => {
+		const menuArr = []
+		lineMenu.forEach((item) => {
+			const Menu = {
+				setup() {
+					const { record } = params
+					const { console } = window
+					const tableDataStore = useTableDataStore()
+					return { console, tableStore: tableDataStore, record }
+				},
+				template: `<span>${item.attribute}</span>`
+			}
+			menuArr.push(Menu)
+		})
+		if (menuArr.length < 4) {
+			return (
+				<div style={{ color: '#165dff' }}>
+					{menuArr.map((menuItem, menuIndex) => {
+						if (menuIndex === menuArr.length - 1) {
+							return (
+								<span>
+									<menuItem />
+								</span>
+							)
+						}
+						return (
+							<span>
+								<menuItem />
+								<a-divider direction="vertical" />
+							</span>
+						)
+					})}
+				</div>
+			)
+		}
+		return (
+			<div style={{ color: '#165dff' }}>
+				<span>
+					{menuArr.map((menuItem, menuIndex) => {
+						if (menuIndex < 2) {
+							return (
+								<span>
+									<menuItem />
+									<a-divider direction="vertical" />
+								</span>
+							)
+						}
+						return ''
+					})}
+				</span>
+				<a-dropdown>
+					<a>
+						更多 <icon-down />
+					</a>
+					<template
+						v-slots={{
+							content: () => {
+								return (
+									<>
+										{menuArr.map((menuItem, menuIndex) => {
+											if (menuIndex >= 2) {
+												return (
+													<a-doption>
+														<menuItem />
+													</a-doption>
+												)
+											}
+											return ''
+										})}
+									</>
+								)
+							}
+						}}
+					></template>
+				</a-dropdown>
+			</div>
+		)
+	}
+	tableColumns.push(actionColumn)
 })
 
 // 暴露api

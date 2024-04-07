@@ -115,8 +115,9 @@ function refresh(bool = true) {
 	}
 }
 /**
- * 加载数据方法
- * @param {Object} pagination 分页选项器
+ * 表格数据
+ * tableData 当前请求数据
+ * tableAllData 请求过的数据，根据rowKey去重
  */
 let tableData = reactive([])
 let tableAllData = []
