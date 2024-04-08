@@ -31,7 +31,7 @@
 							option-filter-prop="children"
 						>
 							<a-option v-for="(optItem, optIndex) in item.options" :key="optIndex" :value="optItem[(item.props && item.props.value) || 'value']">
-								{{ optItem[(item.props && item.porps.label) || 'label'] }}
+								{{ optItem[(item.props && item.props.label) || 'label'] }}
 							</a-option>
 						</a-select>
 						<!-- 级联选择 -->
@@ -94,24 +94,31 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const formModel = ref({})
 const formRef = ref(null)
-const porps = defineProps({
+const props = defineProps({
 	columns: {
 		type: Array,
 		default: () => []
 	}
 })
 
+watch(
+	() => props.columns,
+	(newValue) => {
+		console.log('newValue: ', newValue)
+	},
+	{ deep: true }
+)
 // 搜索栏
 const columns = computed(() => {
 	if (moredSearch.value) {
-		return porps.columns
+		return props.columns
 	}
 	let spanSum = 0
-	const columnArr = porps.columns.filter((item) => {
+	const columnArr = props.columns.filter((item) => {
 		if (item.span) {
 			spanSum += item.span
 		} else {
@@ -125,9 +132,9 @@ const columns = computed(() => {
 // 是否有展开搜索
 const moredExit = computed(() => {
 	let flag = false
-	if (porps.columns && porps.columns.length > 0) {
+	if (props.columns && props.columns.length > 0) {
 		let spanSum = 0
-		porps.columns.forEach((item) => {
+		props.columns.forEach((item) => {
 			if (item.span) {
 				spanSum += item.span
 			} else {

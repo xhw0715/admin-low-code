@@ -127,8 +127,8 @@ function loadData() {
 	const result = props.data(pagination)
 	if ((typeof result === 'object' || typeof result === 'function') && typeof result.then === 'function') {
 		result.then((res) => {
-			pagination.total = res.total
-			tableData = res.data || []
+			pagination.total = res.data.total
+			tableData = res.data.data || []
 			tableAllData = [...tableAllData, ...tableData]
 			tableAllData = getUniqueArray(tableAllData, tableSetting.rowKey)
 			loading.value = false

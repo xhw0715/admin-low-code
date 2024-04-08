@@ -1,4 +1,228 @@
-export default [
+import Mock from 'mockjs'
+import setupMock, { successResponseWrap } from '@/utils/setup-mock'
+import { parseQueryParams } from '@/utils/util'
+
+const searchColumn = [
+	{
+		name: '姓名',
+		alias: 'name',
+		type: 'input'
+	},
+	{
+		name: '年龄',
+		alias: 'age',
+		type: 'number',
+		min: 1,
+		max: 100
+	},
+	{
+		name: '性别',
+		alias: 'sex',
+		type: 'select',
+		options: [
+			{
+				label: '男',
+				value: '1'
+			},
+			{
+				label: '女',
+				value: '2'
+			}
+		]
+	},
+	{
+		name: '日期',
+		alias: 'date',
+		type: 'date',
+		showTime: false
+	},
+	{
+		name: '地址',
+		alias: 'address',
+		type: 'cascader',
+		options: [
+			{
+				value: 'beijing',
+				label: 'Beijing',
+				children: [
+					{
+						value: 'chaoyang',
+						label: 'ChaoYang',
+						children: [
+							{
+								value: 'datunli',
+								label: 'Datunli'
+							}
+						]
+					},
+					{
+						value: 'haidian',
+						label: 'Haidian'
+					},
+					{
+						value: 'dongcheng',
+						label: 'Dongcheng'
+					},
+					{
+						value: 'xicheng',
+						label: 'Xicheng',
+						children: [
+							{
+								value: 'jinrongjie',
+								label: 'Jinrongjie'
+							},
+							{
+								value: 'tianqiao',
+								label: 'Tianqiao'
+							}
+						]
+					}
+				]
+			},
+			{
+				value: 'shanghai',
+				label: 'Shanghai',
+				children: [
+					{
+						value: 'huangpu',
+						label: 'Huangpu'
+					}
+				]
+			}
+		]
+	},
+	{
+		name: '树选择',
+		alias: 'tree',
+		type: 'tree',
+		options: [
+			{
+				title: 'Trunk 0-0',
+				value: 'Trunk 0-0',
+				key: '0-0',
+				children: [
+					{
+						title: 'Leaf 0-0-1',
+						value: 'Leaf 0-0-1',
+						key: '0-0-1'
+					},
+					{
+						title: 'Branch 0-0-2',
+						value: 'Branch 0-0-2',
+						key: '0-0-2',
+						children: [
+							{
+								title: 'Leaf 0-0-2-1',
+								value: 'Leaf 0-0-2-1',
+								key: '0-0-2-1'
+							}
+						]
+					}
+				]
+			},
+			{
+				title: 'Trunk 0-1',
+				value: 'Trunk 0-1',
+				key: '0-1',
+				children: [
+					{
+						title: 'Branch 0-1-1',
+						value: 'Branch 0-1-1',
+						key: '0-1-1',
+						checkable: false,
+						children: [
+							{
+								title: 'Leaf 0-1-1-1',
+								value: 'Leaf 0-1-1-1',
+								key: '0-1-1-1'
+							},
+							{
+								title: 'Leaf 0-1-1-2',
+								value: 'Leaf 0-1-1-2',
+								key: '0-1-1-2',
+								disabled: true
+							}
+						]
+					},
+					{
+						title: 'Leaf 0-1-2',
+						value: 'Leaf 0-1-2',
+						key: '0-1-2'
+					}
+				]
+			}
+		]
+	}
+]
+const tableSetting = {
+	rowKey: 'id',
+	bordered: true, // 是否显示边框
+	hoverable: true, // 是否显示选中效果
+	stripe: false, // 是否开启斑马纹效果
+	size: 'medium', // 表格的大小 'mini' | 'small' | 'medium' | 'large'
+	rowSelection: {
+		type: 'checkbox',
+		showCheckedAll: true,
+		onlyCurrent: false,
+		checkStrictly: true
+	},
+	pagination: {
+		current: 1,
+		pageSize: 20,
+		showTotal: true,
+		showPageSize: true
+	}
+}
+const tableColumn = [
+	{
+		title: '姓名',
+		dataIndex: 'name',
+		align: 'center',
+		ellipsis: true,
+		tooltip: true,
+		sortable: true,
+		alias: 'name',
+		type: 'input'
+	},
+	{
+		title: '年龄',
+		alias: 'age',
+		dataIndex: 'age',
+		width: 60,
+		type: 'number',
+		align: 'center',
+		renderStr: `<a-tag checkable color="arcoblue" :default-checked="true">{{record.age}}</a-tag>`
+	},
+	{
+		title: '性别',
+		alias: 'sex',
+		align: 'center',
+		dataIndex: 'sex',
+		type: 'select'
+	},
+	{
+		title: '日期',
+		alias: 'date',
+		dataIndex: 'date',
+		align: 'center',
+		type: 'date'
+	},
+	{
+		title: '地址',
+		dataIndex: 'address',
+		alias: 'address',
+		align: 'center',
+		type: 'cascader'
+	},
+	{
+		title: '树选择',
+		alias: 'tree',
+		dataIndex: 'tree',
+		align: 'center',
+		type: 'tree'
+	}
+]
+const toolbar = [
 	{
 		id: '10',
 		listorder: '10',
@@ -70,3 +294,248 @@ export default [
 		barmenupriv: ''
 	}
 ]
+const lineMenu = [
+	{
+		id: '10',
+		listorder: '10',
+		name: '查看',
+		bar_alias: 'sys_add',
+		bar_sys: '1',
+		menu_type: 'bar',
+		display: '1',
+		style: 'primary',
+		attribute: "<a-link  @click=\"handleView({ title: '添加', url: '/admin/UserTable/add', tplviewid: '', width: '1400' })\" >查看</a-link>",
+		barmenupriv: ''
+	},
+	{
+		id: '20',
+		listorder: '20',
+		name: '编辑',
+		bar_alias: 'sys_bulkedit',
+		bar_sys: '1',
+		menu_type: 'bar',
+		display: '1',
+		style: 'default',
+		attribute: `
+    <a-link @click="() => { console.log('编辑', tableStore, '11111', lineMenu) }">
+      编辑
+    </a-link>`,
+		barmenupriv: '[{"priv":"visit","type":"role","privdata":"c4ca4238a0b923820dcc509a6f75849b","id":"c4ca4238a0b923820dcc509a6f75849b"}]'
+	},
+	{
+		id: '30',
+		listorder: '30',
+		name: '删除',
+		bar_alias: 'sys_bulkedit',
+		bar_sys: '1',
+		menu_type: 'bar',
+		display: '1',
+		style: 'default',
+		attribute: `
+    <a-link style="color: #f53f3f" @click="() => { console.log('删除', tableStore) }">
+     删除
+    </a-link>`
+	}
+]
+const tableData = [
+	{
+		id: '1',
+		name: 'Jane Doe',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		address: '32 Park Road, London',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '2',
+		name: 'Alisa Ross',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		address: '32 Park Road, London',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '3',
+		name: 'Kevin Sandra',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		address: '32 Park Road, London',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '4',
+		name: 'Ed Hellen',
+		salary: 17000,
+		address: '42 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '5',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '女',
+		_sex_: '2',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '6',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '女',
+		_sex_: '2',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '7',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '8',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '女',
+		_sex_: '2',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '9',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '10',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '11',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '12',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '13',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '15',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	},
+	{
+		id: '14',
+		name: 'William Smith',
+		salary: 27000,
+		address: '62 Park Road, London',
+		age: 18,
+		sex: '男',
+		_sex_: '1',
+		date: '2024-04-02 12:00:00',
+		tree: 'Trunk 0-0',
+		_tree_: 'Trunk 0-0'
+	}
+]
+
+setupMock({
+	setup() {
+		Mock.mock(new RegExp('/api/useTable/setting'), () => {
+			return successResponseWrap({
+				searchColumn,
+				tableColumn,
+				tableSetting,
+				lineMenu,
+				toolbar
+			})
+		})
+
+		Mock.mock(new RegExp('/api/useTable/data'), (params) => {
+			const param = parseQueryParams(params.url)
+			const { current, pageSize } = param
+			return successResponseWrap({
+				data: tableData.slice((current - 1) * pageSize, current * pageSize),
+				total: tableData.length
+			})
+		})
+	}
+})
