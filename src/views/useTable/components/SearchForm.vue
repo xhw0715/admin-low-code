@@ -93,7 +93,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="jsx">
 import { computed, ref, watch } from 'vue'
 
 const formModel = ref({})
@@ -161,7 +161,7 @@ function reset() {
 }
 </script>
 
-<script>
+<script lang="jsx">
 export default {
 	name: 'SearchForm'
 }
